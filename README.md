@@ -9,3 +9,9 @@ This package can be installed to a Julia package directory directly from github 
 ```julia
     Pkg.clone("https://github.com/acrosby/GreatCircle.jl.git")
 ```
+
+And should be available soon through the official METADATA.jl with the following:
+
+```julia
+    Pkg.add("GreatCircle")
+```
