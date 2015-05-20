@@ -54,7 +54,7 @@ function great_distance(start_latitude, start_longitude, end_latitude, end_longi
     f = (rmajor - rminor) / rmajor
 
     distance, angle, reverse_angle = vincentydist(f, rmajor, start_latitude, start_longitude, end_latitude, end_longitude)
-    {"distance"=>rad2deg(distance), "azimuth"=>rad2deg(angle), "reverse_azimuth"=>rad2deg(reverse_angle)}
+    {"distance"=>distance, "azimuth"=>rad2deg(angle), "reverse_azimuth"=>rad2deg(reverse_angle)}
 end
 
 
@@ -219,12 +219,21 @@ function vincentydist(f::Number, a::Number, phi1::Number, lembda1::Number, phi2:
 
     # Iterate the following equations,
     # until there is no significant change in lembda
-    while ( last_lembda < -3000000.0 | lembda != 0) & (abs( (last_lembda - lembda)./lembda) > 1.0e-9 )
+    alpha, sigma, Sin_sigma, Cos2sigma_m, Cos_sigma, sqr_sin_sigma = -999999., -999999., -999999., -999999., -999999., -999999.
+    while ( (last_lembda < -3000000.0) | (lembda != 0) ) & ( abs( (last_lembda - lembda)./lembda) > 1.0e-9 )
         sqr_sin_sigma = (cos(U2) .* sin(lembda)).^2 + ( (cos(U1) .* sin(U2) - sin(U1) .* cos(U2) .* cos(lembda) )).^2
         Sin_sigma = sqrt( sqr_sin_sigma )
         Cos_sigma = sin(U1) .* sin(U2) + cos(U1) .* cos(U2) .* cos(lembda)
         sigma = atan2( Sin_sigma, Cos_sigma )
+
         Sin_alpha = cos(U1) .* cos(U2) .* sin(lembda) ./ sin(sigma)
+
+        if (Sin_alpha >= 1)# & (Sin_alpha .== 1.0)
+            Sin_alpha = 1.0
+        elseif (Sin_alpha <= -1)# & (Sin_alpha .== -1.0)
+            Sin_alpha = -1.0
+        end
+
         alpha = asin( Sin_alpha )
         Cos2sigma_m = cos(sigma) - (2 .* sin(U1) .* sin(U2) ./ cos(alpha).^2 )
         C = (f./16) .* cos(alpha).^2 .* (4 + f .* (4 - 3 .* cos(alpha).^2))
@@ -275,6 +284,7 @@ function vincentydist(f::Number, a::Number, phi1::Array, lembda1::Array, phi2::A
     end
     return s, alpha12, alpha21
 end
-
+vincentydist(f::Number, a::Number, phi1::Number, lembda1::Array, phi2::Number, lembda2::Array) = vincentydist(f, a, phi1*ones(lembda1), lembda1, phi2*ones(lembda1), lembda2)
+vincentydist(f::Number, a::Number, phi1::Array, lembda1::Number, phi2::Array, lembda2::Number) = vincentydist(f, a, phi1, lembda1*ones(phi1), phi2, lembda2*ones(phi1))
 
 end # module
