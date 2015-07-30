@@ -5,13 +5,13 @@ export great_distance, great_circle
 two_pi = 2.0 * pi
 
 
-function great_circle(distance, azimuth, latitude, longitude, rmajor=6378137.0, rminor=6356752.3142)
+function great_circle{T}(distance, azimuth, latitude::T, longitude::T; rmajor=6378137.0, rminor=6356752.3142)
     """
         Named arguments:
-        distance = distance to travel, or numpy array of distances
-        azimuth = angle, in DEGREES of HEADING from NORTH, or numpy array of azimuths
-        latitude = latitude, in DECIMAL DEGREES, or numpy array of latitudes
-        longitude = longitude, in DECIMAL DEGREES, or numpy array of longitudes
+        distance = distance to travel, or array of distances
+        azimuth = angle, in DEGREES of HEADING from NORTH, or array of azimuths
+        latitude = latitude, in DECIMAL DEGREES, or array of latitudes
+        longitude = longitude, in DECIMAL DEGREES, or array of longitudes
         rmajor = radius of earth's major axis. default=6378137.0 (WGS84)
         rminor = radius of earth's minor axis. default=6356752.3142 (WGS84)
 
@@ -31,7 +31,7 @@ function great_circle(distance, azimuth, latitude, longitude, rmajor=6378137.0, 
 end
 
 
-function great_distance(start_latitude, start_longitude, end_latitude, end_longitude, rmajor=6378137.0, rminor=6356752.3142)
+function great_distance{T,U}(start_latitude::T, start_longitude::U, end_latitude::T, end_longitude::U; rmajor=6378137.0, rminor=6356752.3142)
     """
         Named arguments:
         start_latitude = starting latitude, in DECIMAL DEGREES
@@ -92,7 +92,7 @@ end
 # | forward and reverse azimuths between the points (alpha12, alpha21). |
 # | |
 # -----------------------------------------------------------------------
-function vincentypt(f::Number, a::Number, phi1::Number, lembda1::Number, alpha12::Number, s::Number)
+function vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::T, alpha12::T, s::T)
     """
     Returns: lat and long of projected point and reverse azimuth,
     given a reference point and a distance and azimuth to project.
@@ -173,7 +173,7 @@ function vincentypt(f::Number, a::Number, phi1::Number, lembda1::Number, alpha12
 
 end
 
-function vincentypt(f::Number, a::Number, phi1::Array, lembda1::Array, alpha12::Array, s::Array)
+function vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::Array{T,1}, s::Array{T,1})
     lenphi = length(phi1)
     @assert lenphi == length(lembda1)
     @assert lenphi == length(alpha12)
@@ -186,13 +186,13 @@ function vincentypt(f::Number, a::Number, phi1::Array, lembda1::Array, alpha12::
     end
     return phi2, lembda2, alpha21
 end
-# f, rmajor, latitude, longitude, azimuth, distance
-vincentypt(f::Number, a::Number, phi1::Array, lembda1::Array, alpha12::Array, s::Number) = vincentypt(f, a, phi1, lembda1, alpha12, s*ones(lembda1))
-vincentypt(f::Number, a::Number, phi1::Array, lembda1::Array, alpha12::Number, s::Array) = vincentypt(f, a, phi1, lembda1, alpha12*ones(lembda1), s)
-vincentypt(f::Number, a::Number, phi1::Array, lembda1::Array, alpha12::Number, s::Number) = vincentypt(f, a, phi1, lembda1, alpha12*ones(lembda1), s*ones(lembda1))
+
+vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::Array{T,1}, s::T) = vincentypt(f, a, phi1, lembda1, alpha12, ones(length(phi1)) * s)
+vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::T, s::Array{T,1}) = vincentypt(f, a, phi1, lembda1, ones(length(phi1)) * alpha12, s)
+vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::T, s::T) = vincentypt(f, a, phi1, lembda1, ones(length(phi1)) * alpha12, ones(length(phi1)) * s)
 
 
-function vincentydist(f::Number, a::Number, phi1::Number, lembda1::Number, phi2::Number, lembda2::Number)
+function vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::T, phi2::T, lembda2::T)
     """
     Returns the distance between two geographic points on the ellipsoid
     and the forward and reverse azimuths between these points.
@@ -271,7 +271,7 @@ function vincentydist(f::Number, a::Number, phi1::Number, lembda1::Number, phi2:
     return s, alpha12, alpha21
 end
 
-function vincentydist(f::Number, a::Number, phi1::Array, lembda1::Array, phi2::Array, lembda2::Array)
+function vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, phi2::Array{T,1}, lembda2::Array{T,1})
     lenphi = length(phi1)
     @assert lenphi == length(lembda1)
     @assert lenphi == length(phi2)
@@ -284,7 +284,9 @@ function vincentydist(f::Number, a::Number, phi1::Array, lembda1::Array, phi2::A
     end
     return s, alpha12, alpha21
 end
-vincentydist(f::Number, a::Number, phi1::Number, lembda1::Array, phi2::Number, lembda2::Array) = vincentydist(f, a, phi1*ones(lembda1), lembda1, phi2*ones(lembda1), lembda2)
-vincentydist(f::Number, a::Number, phi1::Array, lembda1::Number, phi2::Array, lembda2::Number) = vincentydist(f, a, phi1, lembda1*ones(phi1), phi2, lembda2*ones(phi1))
+
+vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::Array{T,1}, phi2::T, lembda2::Array{T,1}) = vincentydist(f, a, phi1 * ones(lembda1), lembda1, phi2 * ones(lembda1), lembda2)
+vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::T, phi2::Array{T,1}, lembda2::T) = vincentydist(f, a, phi1, lembda1 * ones(phi1), phi2, lembda2 * ones(phi1))
+
 
 end # module
