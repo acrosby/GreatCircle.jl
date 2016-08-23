@@ -36,8 +36,8 @@ new_gc = great_circle(111000., azimuth, latitude, longitude)
 
 
 # One decimal degree is 111000m
-latitude = [40.0:5.:60.0]
-longitude = [-40.0:-5.:-60.0]
+latitude = collect(40.0:5.:60.0)
+longitude = collect(-40.0:-5.:-60.0)
 
 azimuth = ones(longitude) * 90.
 new_gc = great_circle(111000., azimuth, latitude, longitude)
