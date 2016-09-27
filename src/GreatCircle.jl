@@ -27,7 +27,7 @@ function great_circle{T}(distance, azimuth, latitude::T, longitude::T; rmajor=63
     f = (rmajor - rminor) / rmajor
 
     new_lat, new_lon, reverse_azimuth = vincentypt(f, rmajor, latitude, longitude, azimuth, distance)
-    {"latitude"=>rad2deg(new_lat), "longitude"=>rad2deg(new_lon), "reverse_azimuth"=>rad2deg(reverse_azimuth)}
+   Dict("latitude"=>rad2deg(new_lat), "longitude"=>rad2deg(new_lon), "reverse_azimuth"=>rad2deg(reverse_azimuth))
 end
 
 
@@ -54,7 +54,7 @@ function great_distance{T,U}(start_latitude::T, start_longitude::U, end_latitude
     f = (rmajor - rminor) / rmajor
 
     distance, angle, reverse_angle = vincentydist(f, rmajor, start_latitude, start_longitude, end_latitude, end_longitude)
-    {"distance"=>distance, "azimuth"=>rad2deg(angle), "reverse_azimuth"=>rad2deg(reverse_angle)}
+    Dict("distance"=>distance, "azimuth"=>rad2deg(angle), "reverse_azimuth"=>rad2deg(reverse_angle))
 end
 
 
@@ -92,7 +92,7 @@ end
 # | forward and reverse azimuths between the points (alpha12, alpha21). |
 # | |
 # -----------------------------------------------------------------------
-function vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::T, alpha12::T, s::T)
+function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, alpha12::T, s::T)
     """
     Returns: lat and long of projected point and reverse azimuth,
     given a reference point and a distance and azimuth to project.
@@ -150,7 +150,7 @@ function vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::T, alpha12::
         sigma = (s ./ (b .* A)) + delta_sigma
     end
 
-    phi2 = atan2 ( (sin(U1) .* cos(sigma) + cos(U1) .* sin(sigma) .* cos(alpha12) ), ((1-f) .* sqrt( Sinalpha.^2 + (sin(U1) .* sin(sigma) - cos(U1) .* cos(sigma) .* cos(alpha12)).^2)))
+    phi2 = atan2( (sin(U1) .* cos(sigma) + cos(U1) .* sin(sigma) .* cos(alpha12) ), ((1-f) .* sqrt( Sinalpha.^2 + (sin(U1) .* sin(sigma) - cos(U1) .* cos(sigma) .* cos(alpha12)).^2)))
 
     lembda = atan2( (sin(sigma) .* sin(alpha12 )), (cos(U1) .* cos(sigma) - sin(U1) .* sin(sigma) .* cos(alpha12)))
 
@@ -160,7 +160,7 @@ function vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::T, alpha12::
 
     lembda2 = lembda1 + omega
 
-    alpha21 = atan2 ( Sinalpha, (-sin(U1) .* sin(sigma) + cos(U1) .* cos(sigma) .* cos(alpha12)))
+    alpha21 = atan2( Sinalpha, (-sin(U1) .* sin(sigma) + cos(U1) .* cos(sigma) .* cos(alpha12)))
     alpha21 = alpha21 + two_pi ./ 2.0
 
     if alpha21 < 0.0
@@ -173,7 +173,7 @@ function vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::T, alpha12::
 
 end
 
-function vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::Array{T,1}, s::Array{T,1})
+function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::Array{T,1}, s::Array{T,1})
     lenphi = length(phi1)
     @assert lenphi == length(lembda1)
     @assert lenphi == length(alpha12)
@@ -187,12 +187,12 @@ function vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Arr
     return phi2, lembda2, alpha21
 end
 
-vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::Array{T,1}, s::T) = vincentypt(f, a, phi1, lembda1, alpha12, ones(length(phi1)) * s)
-vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::T, s::Array{T,1}) = vincentypt(f, a, phi1, lembda1, ones(length(phi1)) * alpha12, s)
-vincentypt{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::T, s::T) = vincentypt(f, a, phi1, lembda1, ones(length(phi1)) * alpha12, ones(length(phi1)) * s)
+vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::Array{T,1}, s::T) = vincentypt(f, a, phi1, lembda1, alpha12, ones(length(phi1)) * s)
+vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::T, s::Array{T,1}) = vincentypt(f, a, phi1, lembda1, ones(length(phi1)) * alpha12, s)
+vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, alpha12::T, s::T) = vincentypt(f, a, phi1, lembda1, ones(length(phi1)) * alpha12, ones(length(phi1)) * s)
 
 
-function vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::T, phi2::T, lembda2::T)
+function vincentydist{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, phi2::T, lembda2::T)
     """
     Returns the distance between two geographic points on the ellipsoid
     and the forward and reverse azimuths between these points.
@@ -271,7 +271,7 @@ function vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::T, phi2::T
     return s, alpha12, alpha21
 end
 
-function vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, phi2::Array{T,1}, lembda2::Array{T,1})
+function vincentydist{T<:AbstractFloat}(f::T, a::T, phi1::Array{T,1}, lembda1::Array{T,1}, phi2::Array{T,1}, lembda2::Array{T,1})
     lenphi = length(phi1)
     @assert lenphi == length(lembda1)
     @assert lenphi == length(phi2)
@@ -285,8 +285,8 @@ function vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::A
     return s, alpha12, alpha21
 end
 
-vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::T, lembda1::Array{T,1}, phi2::T, lembda2::Array{T,1}) = vincentydist(f, a, phi1 * ones(lembda1), lembda1, phi2 * ones(lembda1), lembda2)
-vincentydist{T<:FloatingPoint}(f::T, a::T, phi1::Array{T,1}, lembda1::T, phi2::Array{T,1}, lembda2::T) = vincentydist(f, a, phi1, lembda1 * ones(phi1), phi2, lembda2 * ones(phi1))
+vincentydist{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::Array{T,1}, phi2::T, lembda2::Array{T,1}) = vincentydist(f, a, phi1 * ones(lembda1), lembda1, phi2 * ones(lembda1), lembda2)
+vincentydist{T<:AbstractFloat}(f::T, a::T, phi1::Array{T,1}, lembda1::T, phi2::Array{T,1}, lembda2::T) = vincentydist(f, a, phi1, lembda1 * ones(phi1), phi2, lembda2 * ones(phi1))
 
 
 end # module
