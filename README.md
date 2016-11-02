@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/acrosby/GreatCircle.jl.svg?branch=master)](https://travis-ci.org/acrosby/GreatCircle.jl)
+
 # GreatCircle
 
 Julia port of https://github.com/axiom-data-science/pygc
