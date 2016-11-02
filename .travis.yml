@@ -5,6 +5,7 @@ julia:
   - 0.4
   - 0.5
   - nightly
+
 #script: # default script is equivalent to the following
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 #  - julia -e 'Pkg.init(); Pkg.clone(pwd()); Pkg.test("GreatCircle")'
