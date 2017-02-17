@@ -12,8 +12,14 @@ This package can be installed to a Julia package directory directly from github 
     Pkg.clone("https://github.com/acrosby/GreatCircle.jl.git")
 ```
 
-And should be available soon through the official METADATA.jl with the following:
+It is also available through the official METADATA.jl with the following:
 
 ```julia
     Pkg.add("GreatCircle")
 ```
+
+This should work for 0.4.x, 0.5.x, and the latest build. Please submit a pull request or issue if something appears broken.
+
+## Contributing
+
+Pull requests are welcome to improve performance, Julia-lang syntax compliance, etc.
