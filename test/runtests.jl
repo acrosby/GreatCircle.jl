@@ -1,9 +1,11 @@
 using GreatCircle
+using Geodesy: LatLon
 using Base.Test
 
 # One test decimal degree is 111000m
 latitude = 40.0
 longitude = -76.0
+position = LatLon(lat=latitude, lon=longitude)
 
 """
     Great Circle Tests
@@ -33,6 +35,10 @@ new_gc = great_circle(111000., azimuth, latitude, longitude)
 # We should have gone up and to the left
 @test new_gc["latitude"] > latitude + 0.45
 @test new_gc["longitude"] < longitude - 0.45
+
+new_gc = great_circle(111000., azimuth, position)
+@test new_gc.lat > latitude + 0.45
+@test new_gc.lon < longitude - 0.45
 
 
 # One decimal degree is 111000m
@@ -75,6 +81,11 @@ latitude_end    = 0.
 longitude_start = 50.
 longitude_end   = 52.
 gd = great_distance(latitude_start, longitude_start, latitude_end, longitude_end)
+@test round(gd["distance"] ./ 1000, 2) .== 111.32 .* 2
+
+a = LatLon(lat=latitude_start, lon=longitude_start)
+b = LatLon(lat=latitude_end, lon=longitude_end)
+gd = great_distance(a, b)
 @test round(gd["distance"] ./ 1000, 2) .== 111.32 .* 2
 
 # One decimal degree is 111000m

@@ -1,11 +1,13 @@
 module GreatCircle
 
+using Geodesy: LatLon
 export great_distance, great_circle
 
-two_pi = 2.0 * pi
+const two_pi = 2.0 * pi
+const RMAJOR = 6378137.0
+const RMINOR = 6356752.3142
 
-
-function great_circle{T}(distance, azimuth, latitude::T, longitude::T; rmajor=6378137.0, rminor=6356752.3142)
+function great_circle{T}(distance, azimuth, latitude::T, longitude::T; rmajor=RMAJOR, rminor=RMINOR)
     """
         Named arguments:
         distance = distance to travel, or array of distances
@@ -29,9 +31,12 @@ function great_circle{T}(distance, azimuth, latitude::T, longitude::T; rmajor=63
     new_lat, new_lon, reverse_azimuth = vincentypt(f, rmajor, latitude, longitude, azimuth, distance)
    Dict("latitude"=>rad2deg(new_lat), "longitude"=>rad2deg(new_lon), "reverse_azimuth"=>rad2deg(reverse_azimuth))
 end
+function great_circle(distance, azimuth, position::LatLon; rmajor=RMAJOR, rminor=RMINOR)
+    temp = great_circle(distance, azimuth, position.lat, position.lon, rmajor=rmajor, rminor=rminor)
+    return LatLon(lat=temp["latitude"], lon=temp["longitude"])
+end
 
-
-function great_distance{T,U}(start_latitude::T, start_longitude::U, end_latitude::T, end_longitude::U; rmajor=6378137.0, rminor=6356752.3142)
+function great_distance{T, U}(start_latitude::T, start_longitude::U, end_latitude::T, end_longitude::U; rmajor=RMAJOR, rminor=RMINOR)
     """
         Named arguments:
         start_latitude = starting latitude, in DECIMAL DEGREES
@@ -56,10 +61,12 @@ function great_distance{T,U}(start_latitude::T, start_longitude::U, end_latitude
     distance, angle, reverse_angle = vincentydist(f, rmajor, start_latitude, start_longitude, end_latitude, end_longitude)
     Dict("distance"=>distance, "azimuth"=>rad2deg(angle), "reverse_azimuth"=>rad2deg(reverse_angle))
 end
-
+function great_distance(a::LatLon, b::LatLon; rmajor=RMAJOR, rminor=RMINOR)
+    great_distance(a.lat, a.lon, b.lat, b.lon, rmajor=rmajor, rminor=rminor)
+end
 
 # -----------------------------------------------------------------------
-# | Algrothims from Geocentric Datum of Australia Technical Manual |
+# | Algorithms from Geocentric Datum of Australia Technical Manual |
 # | |
 # | http://www.anzlic.org.au/icsm/gdatum/chapter4.html |
 # | |
