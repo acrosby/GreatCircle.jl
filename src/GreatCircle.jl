@@ -36,7 +36,7 @@ function great_circle(distance, azimuth, position::LatLon; rmajor=RMAJOR, rminor
     return LatLon(lat=temp["latitude"], lon=temp["longitude"])
 end
 
-function great_distance{T, U}(start_latitude::T, start_longitude::U, end_latitude::T, end_longitude::U; rmajor=RMAJOR, rminor=RMINOR)
+function great_distance(start_latitude::Number, start_longitude::Number, end_latitude::Number, end_longitude::Number; rmajor=RMAJOR, rminor=RMINOR)
     """
         Named arguments:
         start_latitude = starting latitude, in DECIMAL DEGREES
