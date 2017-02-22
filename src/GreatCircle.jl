@@ -31,7 +31,7 @@ function great_circle{T}(distance, azimuth, latitude::T, longitude::T; rmajor=RM
     new_lat, new_lon, reverse_azimuth = vincentypt(f, rmajor, latitude, longitude, azimuth, distance)
    Dict("latitude"=>rad2deg(new_lat), "longitude"=>rad2deg(new_lon), "reverse_azimuth"=>rad2deg(reverse_azimuth))
 end
-function great_circle(distance, azimuth, position::LatLon; rmajor=RMAJOR, rminor=RMINOR)
+function great_circle{T}(distance::T, azimuth::T, position::LatLon{T}; rmajor=RMAJOR, rminor=RMINOR)
     temp = great_circle(distance, azimuth, position.lat, position.lon, rmajor=rmajor, rminor=rminor)
     return LatLon(lat=temp["latitude"], lon=temp["longitude"])
 end
@@ -126,15 +126,15 @@ function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, alpha12::
 
     b = a .* (1.0 - f)
 
-    TanU1 = (1 - f) .* tan(phi1)
+    TanU1 = (1. - f) .* tan(phi1)
     U1 = atan( TanU1 )
     sigma1 = atan2( TanU1, cos(alpha12) )
     Sinalpha = cos(U1) .* sin(alpha12)
     cosalpha_sq = 1.0 - Sinalpha .* Sinalpha
 
     u2 = cosalpha_sq .* (a .* a - b .* b ) ./ (b .* b)
-    A = 1.0 + (u2 ./ 16384) .* (4096 + u2 .* (-768 + u2 .* (320 - 175 .* u2) ) )
-    B = (u2 ./ 1024) .* (256 + u2 .* (-128 + u2 .* (74 - 47 .* u2) ) )
+    A = 1.0 + (u2 ./ 16384.) .* (4096. + u2 .* (-768. + u2 .* (320. - 175. .* u2) ) )
+    B = (u2 ./ 1024.) .* (256. + u2 .* (-128. + u2 .* (74. - 47. .* u2) ) )
 
     # Starting with the approximation
     sigma = (s ./ (b .* A))
@@ -151,19 +151,19 @@ function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, alpha12::
     # two_sigma_m , delta_sigma
     two_sigma_m = 0.
     while ( abs( (last_sigma - sigma) ./ sigma) > 1.0e-9 )
-        two_sigma_m = 2 .* sigma1 + sigma
-        delta_sigma = B .* sin(sigma) .* ( cos(two_sigma_m) + (B./4) .* (cos(sigma) .* (-1 + 2 .* cos(two_sigma_m).^2 - (B./6) .* cos(two_sigma_m) .* (-3 + 4 .* sin(sigma).^2) .* (-3 + 4 .* cos(two_sigma_m).^2 ))))
+        two_sigma_m = 2. .* sigma1 + sigma
+        delta_sigma = B .* sin(sigma) .* ( cos(two_sigma_m) + (B./4.) .* (cos(sigma) .* (-1 + 2 .* cos(two_sigma_m).^2 - (B./6.) .* cos(two_sigma_m) .* (-3. + 4. .* sin(sigma).^2) .* (-3. + 4. .* cos(two_sigma_m).^2 ))))
         last_sigma = sigma
         sigma = (s ./ (b .* A)) + delta_sigma
     end
 
-    phi2 = atan2( (sin(U1) .* cos(sigma) + cos(U1) .* sin(sigma) .* cos(alpha12) ), ((1-f) .* sqrt( Sinalpha.^2 + (sin(U1) .* sin(sigma) - cos(U1) .* cos(sigma) .* cos(alpha12)).^2)))
+    phi2 = atan2( (sin(U1) .* cos(sigma) + cos(U1) .* sin(sigma) .* cos(alpha12) ), ((1.-f) .* sqrt( Sinalpha.^2 + (sin(U1) .* sin(sigma) - cos(U1) .* cos(sigma) .* cos(alpha12)).^2)))
 
     lembda = atan2( (sin(sigma) .* sin(alpha12 )), (cos(U1) .* cos(sigma) - sin(U1) .* sin(sigma) .* cos(alpha12)))
 
-    C = (f./16) .* cosalpha_sq .* (4 + f .* (4 - 3 .* cosalpha_sq ))
+    C = (f./16.) .* cosalpha_sq .* (4. + f .* (4. - 3. .* cosalpha_sq ))
 
-    omega = lembda - (1-C) .* f .* Sinalpha .* (sigma + C .* sin(sigma) .* (cos(two_sigma_m) + C .* cos(sigma) .* (-1 + 2 .* cos(two_sigma_m).^2 )))
+    omega = lembda - (1.-C) .* f .* Sinalpha .* (sigma + C .* sin(sigma) .* (cos(two_sigma_m) + C .* cos(sigma) .* (-1. + 2. .* cos(two_sigma_m).^2 )))
 
     lembda2 = lembda1 + omega
 
