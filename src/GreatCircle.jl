@@ -149,26 +149,37 @@ function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, alpha12::
     # Iterate the following three equations
     # until there is no significant change in sigma
     # two_sigma_m , delta_sigma
-    two_sigma_m = 0.
     while ( abs( (last_sigma - sigma) ./ sigma) > 1.0e-9 )
         two_sigma_m = 2 .* sigma1 + sigma
-        delta_sigma = B .* sin(sigma) .* ( cos(two_sigma_m) + (B./4) .* (cos(sigma) .* (-1 + 2 .* cos(two_sigma_m).^2 - (B./6) .* cos(two_sigma_m) .* (-3 + 4 .* sin(sigma).^2) .* (-3 + 4 .* cos(two_sigma_m).^2 ))))
+        delta_sigma = B .* sin(sigma) .* ( cos(two_sigma_m) + 
+                                         (B./4) .* (cos(sigma) .* 
+                                         (-1 + 2 .* cos(two_sigma_m).^2 - 
+                                         (B./6) .* cos(two_sigma_m) .* 
+                                         (-3 + 4 .* sin(sigma).^2) .* 
+                                         (-3 + 4 .* cos(two_sigma_m).^2 ))))
         last_sigma = sigma
         sigma = (s ./ (b .* A)) + delta_sigma
     end
 
-    phi2 = atan2( (sin(U1) .* cos(sigma) + cos(U1) .* sin(sigma) .* cos(alpha12) ), ((1-f) .* sqrt( Sinalpha.^2 + (sin(U1) .* sin(sigma) - cos(U1) .* cos(sigma) .* cos(alpha12)).^2)))
+    phi2 = atan2( (sin(U1) .* cos(sigma) + cos(U1) .* sin(sigma) .* cos(alpha12) ), 
+                  ((1 - f) .* sqrt( Sinalpha.^2 + 
+                                    (sin(U1) .* sin(sigma) - cos(U1) .* cos(sigma) .* cos(alpha12)).^2)))
 
-    lembda = atan2( (sin(sigma) .* sin(alpha12 )), (cos(U1) .* cos(sigma) - sin(U1) .* sin(sigma) .* cos(alpha12)))
+    lembda = atan2( (sin(sigma) .* sin(alpha12 )), 
+                    (cos(U1) .* cos(sigma) - 
+                     sin(U1) .* sin(sigma) .* cos(alpha12)))
 
     C = (f./16) .* cosalpha_sq .* (4 + f .* (4 - 3 .* cosalpha_sq ))
 
-    omega = lembda - (1-C) .* f .* Sinalpha .* (sigma + C .* sin(sigma) .* (cos(two_sigma_m) + C .* cos(sigma) .* (-1 + 2 .* cos(two_sigma_m).^2 )))
+    omega = lembda - (1-C) .* f .* Sinalpha .* 
+            (sigma + C .* sin(sigma) .* (cos(two_sigma_m) + 
+                                         C .* cos(sigma) .* (-1 + 2 .* cos(two_sigma_m).^2 )))
 
     lembda2 = lembda1 + omega
 
-    alpha21 = atan2( Sinalpha, (-sin(U1) .* sin(sigma) + cos(U1) .* cos(sigma) .* cos(alpha12)))
-    alpha21 = alpha21 + two_pi ./ 2.0
+    alpha21 = atan2( Sinalpha, (-sin(U1) .* sin(sigma) + 
+                                cos(U1) .* cos(sigma) .* cos(alpha12)))
+    alpha21 = alpha21 + pi  # two_pi ./ 2.0  # just pi?
 
     if alpha21 < 0.0
         alpha21 = alpha21 + two_pi
