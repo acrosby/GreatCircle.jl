@@ -149,9 +149,8 @@ function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, alpha12::
     # Iterate the following three equations
     # until there is no significant change in sigma
     # two_sigma_m , delta_sigma
-    two_sigma_m = 0.
     while ( abs( (last_sigma - sigma) ./ sigma) > 1.0e-9 )
-        two_sigma_m = 2 .* sigma1 + sigma
+        global two_sigma_m = 2 .* sigma1 + sigma
         delta_sigma = B .* sin(sigma) .* ( cos(two_sigma_m) + (B./4) .* (cos(sigma) .* (-1 + 2 .* cos(two_sigma_m).^2 - (B./6) .* cos(two_sigma_m) .* (-3 + 4 .* sin(sigma).^2) .* (-3 + 4 .* cos(two_sigma_m).^2 ))))
         last_sigma = sigma
         sigma = (s ./ (b .* A)) + delta_sigma
