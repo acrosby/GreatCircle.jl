@@ -168,7 +168,7 @@ function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, alpha12::
     lembda2 = lembda1 + omega
 
     alpha21 = atan2( Sinalpha, (-sin(U1) .* sin(sigma) + cos(U1) .* cos(sigma) .* cos(alpha12)))
-    alpha21 = alpha21 + two_pi ./ 2.0
+    alpha21 = alpha21 + pi
 
     if alpha21 < 0.0
         alpha21 = alpha21 + two_pi
