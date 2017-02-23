@@ -18,7 +18,7 @@ function great_circle{T}(distance, azimuth, latitude::T, longitude::T; rmajor=RM
         rminor = radius of earth's minor axis. default=6356752.3142 (WGS84)
 
         Returns a dictionary with:
-        'latitude' in decimal degrees
+git@github.com:acrosby/GreatCircle.jl.git        'latitude' in decimal degrees
         'longitude' in decimal degrees
         'reverse_azimuth' in decimal degrees
     """
@@ -99,7 +99,7 @@ end
 # | forward and reverse azimuths between the points (alpha12, alpha21). |
 # | |
 # -----------------------------------------------------------------------
-function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, alpha12::T, s::T)
+function vincentypt(f, a, phi1, lembda1, alpha12, s)
     """
     Returns: lat and long of projected point and reverse azimuth,
     given a reference point and a distance and azimuth to project.
