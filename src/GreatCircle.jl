@@ -150,7 +150,8 @@ function vincentypt{T<:AbstractFloat}(f::T, a::T, phi1::T, lembda1::T, alpha12::
     # until there is no significant change in sigma
     # two_sigma_m , delta_sigma
     while ( abs( (last_sigma - sigma) ./ sigma) > 1.0e-9 )
-        global two_sigma_m = 2 .* sigma1 + sigma
+        global two_sigma_m
+        two_sigma_m = 2 .* sigma1 + sigma
         delta_sigma = B .* sin(sigma) .* ( cos(two_sigma_m) + 
                                          (B./4) .* (cos(sigma) .* 
                                          (-1 + 2 .* cos(two_sigma_m).^2 - 
