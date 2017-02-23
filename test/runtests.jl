@@ -15,6 +15,20 @@ new_gc = great_circle(111000., azimuth, latitude, longitude)
 # We should have gone to the right
 @test new_gc["longitude"] > longitude + 0.9
 
+a = great_circle(111320., azimuth, 0., 0.)
+@test abs(a["latitude"]-0.)<=eps(typeof(a["latitude"]))
+for i = 1:2
+    a = great_circle(111320., azimuth, a["latitude"], a["longitude"])
+    @test abs(a["latitude"]-0.)<=eps(typeof(a["latitude"]))
+end
+aposition = LatLon(0., 0.)
+a = great_circle(111320., azimuth, aposition)
+@test abs(a.lat-0.)<=eps(typeof(a.lat))
+for i = 1:2
+    a = great_circle(111320., azimuth, a)
+    @test abs(a.lat-0.)<=eps(typeof(a.lat))
+end
+
 azimuth = 270.
 new_gc = great_circle(111000., azimuth, latitude, longitude)
 # We should have gone to the left
