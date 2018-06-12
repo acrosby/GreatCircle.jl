@@ -1,5 +1,7 @@
 module GreatCircle
 
+__precompile__()
+
 using Geodesy: LatLon
 export great_distance, great_circle
 
